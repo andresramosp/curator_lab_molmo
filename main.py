@@ -27,15 +27,22 @@ async def generate_text(image: UploadFile = File(...), prompt: str = "Describe t
 
     # Preprocesar la imagen
     inputs = processor.process(images=[image], text=prompt)
-    inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
+
+    # Verificar si inputs contiene tensores
+    print("Inputs antes de conversión:", {k: type(v) for k, v in inputs.items()})
+
+    # Convertir listas en tensores y moverlos a la GPU
+    inputs = {k: torch.tensor(v).to(model.device).unsqueeze(0) if isinstance(v, list) else v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
+
+    print("Inputs después de conversión:", {k: v.shape for k, v in inputs.items()})
 
     # Generación de texto
     with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
         output = model.generate_from_batch(
-        inputs,
-        GenerationConfig(max_new_tokens=500, stop_strings="<|endoftext|>"),
-        tokenizer=processor.tokenizer
-    )
+            inputs,
+            GenerationConfig(max_new_tokens=500, stop_strings="<|endoftext|>"),
+            tokenizer=processor.tokenizer
+        )
 
     # Decodificar la salida
     generated_text = processor.tokenizer.decode(output[0], skip_special_tokens=True)
