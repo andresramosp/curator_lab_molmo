@@ -3,6 +3,12 @@ from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig
 from PIL import Image
 import requests
 import torch
+import os
+
+MODEL_REPO = "allenai/Molmo-7B-D-0924"
+
+# Configurar Hugging Face para usar una caché en RAM
+os.environ["HF_HOME"] = "/dev/shm/huggingface_cache"
 
 # Medición de tiempo total
 start_total = time.perf_counter()
@@ -10,10 +16,10 @@ start_total = time.perf_counter()
 # Medición y carga del processor
 start_processor = time.perf_counter()
 processor = AutoProcessor.from_pretrained(
-    'allenai/Molmo-7B-D-0924',
+    MODEL_REPO,
     trust_remote_code=True,
-    torch_dtype='auto',
-    device_map='auto'
+    torch_dtype="auto",
+    device_map="auto"
 )
 end_processor = time.perf_counter()
 print(f"Tiempo de carga del processor: {end_processor - start_processor:.2f} segundos")
@@ -21,10 +27,10 @@ print(f"Tiempo de carga del processor: {end_processor - start_processor:.2f} seg
 # Medición y carga del modelo
 start_model = time.perf_counter()
 model = AutoModelForCausalLM.from_pretrained(
-    'allenai/Molmo-7B-D-0924',
+    MODEL_REPO,
     trust_remote_code=True,
-    torch_dtype='auto',
-    device_map='auto'
+    torch_dtype="auto",
+    device_map="auto"
 )
 end_model = time.perf_counter()
 print(f"Tiempo de carga del modelo: {end_model - start_model:.2f} segundos")
