@@ -40,13 +40,11 @@ async def generate_text(image: UploadFile = File(...), prompt: str = "Describe t
     model.to(dtype=torch.bfloat16)
     if "images" in inputs:
         inputs["images"] = inputs["images"].to(torch.bfloat16)
-    
-    with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
-        output = model.generate_from_batch(
-            inputs,
-            GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
-            tokenizer=processor.tokenizer
-        )
+    output = model.generate_from_batch(
+        inputs,
+        GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
+        tokenizer=processor.tokenizer
+    )
     
     # Decodificar únicamente los tokens generados
     generated_tokens = output[0, inputs['input_ids'].size(1):]
