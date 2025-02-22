@@ -1,7 +1,7 @@
-fastapi
-uvicorn
-torch
-torchvision
 transformers
-runpod
 Pillow
+requests
+einops 
+torchvision
+accelerate
+torch
