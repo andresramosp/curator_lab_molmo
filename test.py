@@ -12,14 +12,14 @@ print("Cargando modelo en GPU...")
 processor = AutoProcessor.from_pretrained(
     MODEL_REPO,
     cache_dir=CACHE_DIR,
-    trust_remote_code=True,
+    trust_remote_code=False,
     torch_dtype='auto',
     device_map='auto'
 )
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_REPO,
     cache_dir=CACHE_DIR,
-    trust_remote_code=True,
+    trust_remote_code=False,
     torch_dtype='auto',
     device_map='auto'
 )
