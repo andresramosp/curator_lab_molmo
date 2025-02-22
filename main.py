@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
-from transformers import AutoModelForCausalLM, AutoProcessor
+from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig
 from PIL import Image
 import torch
 from io import BytesIO
@@ -32,10 +32,10 @@ async def generate_text(image: UploadFile = File(...), prompt: str = "Describe t
     # Generación de texto
     with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
         output = model.generate_from_batch(
-            inputs,
-            tokenizer=processor.tokenizer,
-            max_new_tokens=200
-        )
+        inputs,
+        GenerationConfig(max_new_tokens=500, stop_strings="<|endoftext|>"),
+        tokenizer=processor.tokenizer
+    )
 
     # Decodificar la salida
     generated_text = processor.tokenizer.decode(output[0], skip_special_tokens=True)

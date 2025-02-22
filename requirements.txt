@@ -1,4 +1,5 @@
 fastapi
+uvicorn
 transformers
 Pillow
 requests
@@ -6,3 +7,4 @@ einops
 torchvision
 accelerate
 torch
+python-multipart
