@@ -35,6 +35,9 @@ from io import BytesIO
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
+print("Tokenizer vocab size:", processor.tokenizer.vocab_size)
+
+
 @app.post("/generate")
 async def generate_text(image: UploadFile = File(...), prompt: str = "Describe this image."):
     # Leer imagen del UploadFile
