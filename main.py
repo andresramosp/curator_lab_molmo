@@ -4,6 +4,7 @@ from PIL import Image
 import torch
 from io import BytesIO
 import requests
+import os
 
 # Iniciar la API
 app = FastAPI()
@@ -32,6 +33,8 @@ print("Modelo cargado.")
 torch.cuda.empty_cache()
 from io import BytesIO
 
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+
 @app.post("/generate")
 async def generate_text(image: UploadFile = File(...), prompt: str = "Describe this image."):
     # Leer imagen del UploadFile
@@ -46,6 +49,10 @@ async def generate_text(image: UploadFile = File(...), prompt: str = "Describe t
 
     # Mover inputs al dispositivo correcto y crear un batch de tamaño 1
     inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
+
+    for key, value in inputs.items():
+        print(f"{key} shape: {value.shape}")
+        print(f"{key} min: {value.min().item()}, max: {value.max().item()}")
 
     # Generar la salida
     with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
