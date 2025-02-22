@@ -12,23 +12,29 @@ print("Cargando modelo en GPU...")
 processor = AutoProcessor.from_pretrained(
     MODEL_REPO,
     cache_dir=CACHE_DIR,
-    trust_remote_code=False,
+    trust_remote_code=True,
     torch_dtype='auto',
     device_map='auto'
 )
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_REPO,
     cache_dir=CACHE_DIR,
-    trust_remote_code=False,
+    trust_remote_code=True,
     torch_dtype='auto',
     device_map='auto'
 )
 
-# process the image and text
+
+
+img = Image.open(requests.get("https://picsum.photos/id/237/536/354", stream=True).raw)
+print("Tamaño de la imagen:", img.size)
+print("Modo de la imagen:", img.mode)
+
 inputs = processor.process(
-    images=[Image.open(requests.get("https://picsum.photos/id/237/536/354", stream=True).raw)],
+    images=[img],
     text="Describe this image."
 )
+
 
 # move inputs to the correct device and make a batch of size 1
 inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
