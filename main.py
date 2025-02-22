@@ -27,6 +27,8 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 print("Modelo cargado.")
 
+torch.cuda.empty_cache()
+
 @app.post("/generate")
 async def generate_text(image: UploadFile = File(...), prompt: str = "Describe this image."):
 
