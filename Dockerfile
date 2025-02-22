@@ -1,5 +1,5 @@
-# Imagen base con soporte CUDA (ajustar según necesidad)
-FROM python:3.10
+# Imagen base con soporte CUDA (PyTorch)
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 
 # Definir el directorio de trabajo
 WORKDIR /app
@@ -7,18 +7,15 @@ WORKDIR /app
 # Copiar el código de la API
 COPY . /app
 
-# Instalar las dependencias
-RUN pip install --no-cache-dir -r requirements.txt
+# Instalar las dependencias con logging
+RUN echo "Instalando dependencias..." && \
+    pip install --no-cache-dir -r requirements.txt | tee /app/install.log
 
-# Configurar Hugging Face para almacenar modelos en una carpeta persistente dentro del contenedor
+# Configurar Hugging Face para almacenar modelos en una carpeta persistente
 ENV HF_HOME="/app/model_cache"
 
-# Pre-descargar el modelo Molmo para evitar descargas en cada arranque
-RUN python -c "\
-    from transformers import AutoModelForCausalLM, AutoProcessor;\
-    model_id='allenai/Molmo-7B-D-0924';\
-    AutoProcessor.from_pretrained(model_id, trust_remote_code=True);\
-    AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, torch_dtype='auto')"
+# No descargar el modelo en el build para evitar timeout
+# Se descargará en runtime dentro de `main.py`
 
 # Definir el comando para ejecutar el handler en RunPod
 CMD ["python", "main.py"]
