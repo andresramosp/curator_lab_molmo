@@ -10,9 +10,11 @@ app = FastAPI()
 
 # Cargar el modelo en RAM una sola vez al iniciar el pod
 MODEL_REPO = "allenai/Molmo-7B-D-0924"
+MODEL_DIR = "/workspace/molmo_model"
+
 print("Cargando modelo en GPU...")
 processor = AutoProcessor.from_pretrained(
-    'allenai/Molmo-7B-D-0924',
+    MODEL_DIR,
     trust_remote_code=True,
     torch_dtype='auto',
     device_map='auto'
@@ -20,7 +22,7 @@ processor = AutoProcessor.from_pretrained(
 
 # load the model
 model = AutoModelForCausalLM.from_pretrained(
-    'allenai/Molmo-7B-D-0924',
+    MODEL_DIR,
     trust_remote_code=True,
     torch_dtype='auto',
     device_map='auto'
