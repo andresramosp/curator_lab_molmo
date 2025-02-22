@@ -30,19 +30,24 @@ model = AutoModelForCausalLM.from_pretrained(
 print("Modelo cargado.")
 
 torch.cuda.empty_cache()
+from io import BytesIO
 
 @app.post("/generate")
 async def generate_text(image: UploadFile = File(...), prompt: str = "Describe this image."):
+    # Leer imagen del UploadFile
+    image_bytes = await image.read()
+    pil_image = Image.open(BytesIO(image_bytes))
 
+    # Procesar la imagen y el prompt
     inputs = processor.process(
-        images=[Image.open(requests.get("https://picsum.photos/id/237/536/354", stream=True).raw)],
-        text="Describe this image."
+        images=[pil_image],
+        text=prompt
     )
 
-    # move inputs to the correct device and make a batch of size 1
+    # Mover inputs al dispositivo correcto y crear un batch de tamaño 1
     inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
 
-    # generate output; maximum 200 new tokens; stop generation when <|endoftext|> is generated
+    # Generar la salida
     with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
         output = model.generate_from_batch(
             inputs,
@@ -50,7 +55,8 @@ async def generate_text(image: UploadFile = File(...), prompt: str = "Describe t
             tokenizer=processor.tokenizer
         )
 
-    # only get generated tokens; decode them to text
-    generated_tokens = output[0,inputs['input_ids'].size(1):]
+    # Decodificar los tokens generados
+    generated_tokens = output[0, inputs['input_ids'].size(1):]
     generated_text = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
     return {"description": generated_text}
+
