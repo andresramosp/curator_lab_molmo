@@ -39,11 +39,12 @@ async def generate_text(image: UploadFile = File(...), prompt: str = "Describe t
     inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
 
     # generate output; maximum 200 new tokens; stop generation when <|endoftext|> is generated
-    output = model.generate_from_batch(
-        inputs,
-        GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
-        tokenizer=processor.tokenizer
-    )
+    with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
+        output = model.generate_from_batch(
+            inputs,
+            GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
+            tokenizer=processor.tokenizer
+        )
 
     # only get generated tokens; decode them to text
     generated_tokens = output[0,inputs['input_ids'].size(1):]
