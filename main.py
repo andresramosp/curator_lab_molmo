@@ -46,7 +46,7 @@ async def generate_text(image: UploadFile = File(...), prompt: str = "Describe t
     with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
         output = model.generate_from_batch(
             inputs,
-            GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
+            GenerationConfig(max_new_tokens=50, stop_strings="<|endoftext|>"),
             tokenizer=processor.tokenizer
         )
 
